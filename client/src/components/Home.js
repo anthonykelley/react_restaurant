@@ -1,38 +1,53 @@
 import React, { Component } from 'react';
-import 'semantic-ui-css/semantic.min.css';
-import { Segment, Dimmer, Loader, List, Header, Button } from 'semantic-ui-react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { 
+  Segment, 
+  Header, 
+  Dimmer, 
+  Loader,
+  List,
+} from 'semantic-ui-react';
+import axios from 'axios';
 
 
 class Menu extends Component {
-  state = { product: {}, loaded: false };
+  state = { menus: [] };
 
   componentDidMount() {
-    const productId = this.props.match.params.id;
-
-    axios.get(`/api/products/${productId}`)
+    axios.get('/api/menus')
       .then( res => {
-        this.setState({ product: res.data, loaded: true });
+        this.setState({ menus: res.data});
       })
       .catch( err => {
         console.log(err);
     });
   }
 
+  displayMenus = () => {
+    return this.state.menus.map( menu => {
+      return(<List.Item>{menu.name}</List.Item>);
+    })
+  }
+
+  menusLoader() {
+    return(
+      <Dimmer active>
+        <Loader>Loading Menu...</Loader>
+      </Dimmer>
+    )
+  }
+
   render() {
-    if(this.state.loaded)
-      return(
-        <Segment>
-          { this.displayProduct() }
-        </Segment>
-      )
-    else
-      return(
-        <Dimmer active>
-          <Loader>Loading Product...</Loader>
-        </Dimmer>
-      )
+    return(
+      <Segment basic>
+        { this.state.menus.length > 0 ?
+          <List>
+            {this.displayMenus()}
+          </List> :
+          this.menusLoader()
+        }
+      </Segment>
+    )
   }
 }
 
